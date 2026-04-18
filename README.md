@@ -24,9 +24,9 @@ EcoPulse is a Flask-based energy management application.
    ```
    ECOULSE_SMTP_HOST=smtp.gmail.com
    ECOULSE_SMTP_PORT=587
-   ECOULSE_SMTP_USERNAME=your_email@gmail.com
-   ECOULSE_SMTP_PASSWORD=your_app_password
-   ECOULSE_SMTP_FROM=your_email@gmail.com
+   ECOULSE_SMTP_USERNAME=ososinelson4@gmail.com
+   ECOULSE_SMTP_PASSWORD=ocvd otrd bmqe btms
+   ECOULSE_SMTP_FROM=barongonelson92@gmail.com
    ECOULSE_SMTP_USE_TLS=true
    ```
 
