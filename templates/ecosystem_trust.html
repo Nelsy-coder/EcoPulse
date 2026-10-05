@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trust Center - EcoPulse</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+<div class="container py-4">
+    <h2 class="mb-3">Trust Center</h2>
+    <p class="text-muted">Security, privacy, partnerships, and sustainability progress in one place.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'warning' if category == 'warning' else 'success' }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100"><div class="card-body"><h6 class="text-muted">Customers</h6><h3>{{ metrics.active_customers }}</h3></div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100"><div class="card-body"><h6 class="text-muted">CO₂ Impact</h6><h3>{{ metrics.total_co2 }} kg</h3></div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100"><div class="card-body"><h6 class="text-muted">Renewable Share</h6><h3>{{ metrics.renewable_share }}%</h3></div></div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100"><div class="card-body"><h6 class="text-muted">Community Programs</h6><h3>{{ metrics.community_programs }}</h3></div></div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Security & Privacy</h5>
+                    <ul>
+                        <li>Role-based access for admins, examiners, and HR managers</li>
+                        <li>Audit logs for reviews, approvals, and report actions</li>
+                        <li>Examiner validation for tariff changes before publication</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Partnerships & Integrations</h5>
+                    <ul>
+                        <li>School and campus energy monitoring</li>
+                        <li>Business and NGO reporting integrations</li>
+                        <li>Open API-ready data exports</li>
+                    </ul>
+                    <form method="POST" class="mt-3">
+                        <div class="mb-2"><input class="form-control" name="name" placeholder="Your name" aria-label="Your name" required></div>
+                        <div class="mb-2"><input class="form-control" name="email" type="email" placeholder="Email" aria-label="Email" required></div>
+                        <div class="mb-2"><input class="form-control" name="organization" placeholder="Organization" aria-label="Organization"></div>
+                        <div class="mb-2"><textarea class="form-control" name="need" rows="3" placeholder="Describe your integration need" aria-label="Integration need"></textarea></div>
+                        <button type="submit" class="btn btn-primary">Request Partnership</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if partnership_requests %}
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Recent Partnership Requests</h5>
+                <div class="mb-0">{% for request in partnership_requests %}<div class="mb-2"><strong>{{ request.organization or request.name }}</strong> — {{ request.need }}</div>{% endfor %}</div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

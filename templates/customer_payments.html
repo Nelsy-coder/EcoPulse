@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments - EcoPulse</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">Payments</h2>
+            <p class="text-muted mb-0">Make secure payments for your outstanding energy invoices.</p>
+        </div>
+        <a class="btn btn-outline-dark" href="{{ url_for('dashboard') }}"><i class="bi bi-arrow-left"></i> Back to dashboard</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'warning' if category == 'warning' else 'info' }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-credit-card"></i> Payment methods</h5>
+            <div class="row g-3 mt-1">
+                <div class="col-md-3">
+                    <div class="border rounded-4 p-3 h-100">
+                        <strong>📱 M-Pesa</strong>
+                        <div class="small text-muted">Fast mobile payment using your phone number.</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded-4 p-3 h-100">
+                        <strong>💳 Card</strong>
+                        <div class="small text-muted">Use a debit or credit card for instant settlement.</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded-4 p-3 h-100">
+                        <strong>🏦 Bank Transfer</strong>
+                        <div class="small text-muted">Transfer funds from your bank account.</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="border rounded-4 p-3 h-100">
+                        <strong>💰 EcoPulse Wallet</strong>
+                        <div class="small text-muted">Pay from your EcoPulse wallet balance.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0"><i class="bi bi-receipt"></i> Open invoices</h5>
+                <span class="text-muted">{{ payable_invoices|length }} due</span>
+            </div>
+
+            {% if payable_invoices %}
+                <div class="row g-4">
+                    {% for invoice in payable_invoices %}
+                        <div class="col-lg-6">
+                            <div class="border rounded-4 p-4 h-100 bg-light-subtle">
+                                <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                                    <div>
+                                        <div class="fw-semibold fs-5">{{ invoice.period }}</div>
+                                        <small class="text-muted">{{ "%.2f"|format(invoice.total_consumption) }} kWh billed</small>
+                                    </div>
+                                    <span class="badge {% if invoice.payment_status == 'overdue' %}bg-danger{% else %}bg-warning{% endif %} fs-6">{{ invoice.payment_status|upper }}</span>
+                                </div>
+                                <div class="row g-3 mb-3">
+                                    <div class="col-4 text-center"><small class="text-muted d-block">Total</small><strong>{{ current_user.currency }} {{ "%.2f"|format(invoice.total_cost) }}</strong></div>
+                                    <div class="col-4 text-center"><small class="text-muted d-block">Paid</small><strong>{{ current_user.currency }} {{ "%.2f"|format(invoice.total_paid) }}</strong></div>
+                                    <div class="col-4 text-center"><small class="text-muted d-block">Balance</small><strong class="text-warning">{{ current_user.currency }} {{ "%.2f"|format(invoice.balance) }}</strong></div>
+                                </div>
+                                <form method="POST" action="{{ url_for('customer_make_payment', record_id=invoice.id) }}" class="row g-3" onsubmit="return validatePayment('{{ invoice.id }}')">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Payment Method</label>
+                                        <select class="form-select" name="payment_method" required>
+                                            <option value="">Select method</option>
+                                            <option value="mpesa">📱 M-Pesa</option>
+                                            <option value="card">💳 Card</option>
+                                            <option value="bank_transfer">🏦 Bank Transfer</option>
+                                            <option value="wallet">💰 EcoPulse Wallet</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Phone Number</label>
+                                        <input class="form-control" type="tel" name="payment_phone" id="payment_phone_{{ invoice.id }}" maxlength="10" pattern="\\d{10}" placeholder="0712345678">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Reference</label>
+                                        <input class="form-control" type="text" name="payment_reference" id="payment_reference_{{ invoice.id }}" maxlength="10" minlength="10" placeholder="ABC123XYZ7" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Payment Amount</label>
+                                        <input class="form-control" type="number" min="0.01" max="{{ '%.2f'|format(invoice.balance) }}" step="0.01" name="payment_amount" value="{{ '%.2f'|format(invoice.balance) }}" required>
+                                    </div>
+                                    <div class="col-12">
+                                        <button class="btn btn-dark w-100" type="submit">Pay Now</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-check-circle-fill fs-1 text-success"></i>
+                    <p class="mt-2 mb-0">You have no outstanding balance right now.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function validatePayment(invoiceId) {
+    const phone = document.getElementById('payment_phone_' + invoiceId).value;
+    const reference = document.getElementById('payment_reference_' + invoiceId).value;
+    if (phone && !/^\d{10}$/.test(phone)) {
+        alert('Phone number must be exactly 10 digits when provided');
+        return false;
+    }
+    if (!reference || reference.length !== 10) {
+        alert('Reference number must be exactly 10 characters');
+        return false;
+    }
+    if (!/^[a-zA-Z0-9]+$/.test(reference)) {
+        alert('Reference can only contain letters and numbers');
+        return false;
+    }
+    return true;
+}
+</script>
+</body>
+</html>

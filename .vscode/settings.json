@@ -1,0 +1,12 @@
+{
+    "cSpell.words": [
+        "fonttools",
+        "itsdangerous",
+        "kiwisolver",
+        "kwhs",
+        "matplotlib",
+        "numpy",
+        "reportlab"
+    ],
+    "python-envs.defaultEnvManager": "ms-python.python:venv"
+}

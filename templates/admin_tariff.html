@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin Tariff</title>
+  </head>
+  <body>
+    <h2>Tariff Management</h2>
+    <form method="post">
+      <div>
+        <label for="energy_source">Energy Source</label>
+        <select id="energy_source" name="energy_source" required>
+          <option value="KPLC" selected>KPLC</option>
+          <option value="SOLAR">SOLAR</option>
+        </select>
+      </div>
+      <div>
+        <label for="cost_per_unit">Cost Per Unit</label>
+        <input id="cost_per_unit" name="cost_per_unit" type="number" step="0.01" min="0" required />
+      </div>
+      <div>
+        <button type="submit">Update Tariff</button>
+      </div>
+    </form>
+
+    <h3>Recent Notices</h3>
+    {% if notices %}
+      <ul><!--{% for n in notices %}--><li><strong>{{ n.title }}</strong><br />
+            Source: {{ n.data.energy_source or 'N/A' }}<br />
+            Cost: {{ n.data.cost_per_unit or 'N/A' }}<br />
+            Created: {{ n.created_at }}</li><!--{% endfor %}--></ul>
+    {% else %}
+      <p>No tariff notices have been published yet stay updated.</p>
+    {% endif %}
+  </body>
+</html>
